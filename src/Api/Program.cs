@@ -3,6 +3,7 @@ using Api.Routes.Weather;
 using Application;
 using FluentValidation;
 using Infrastructure;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,12 @@ builder.Services.AddAuthorization(options => { options.AddAuthorizationPolicies(
 // FluentValidation register all validators present in this assembly
 builder.Services.AddValidatorsFromAssemblyContaining<Api.Program>();
 
+// Add Logging
+builder.Host.UseSerilog((context, services, config) => config
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -34,6 +41,8 @@ app.UseSwaggerUI(options =>
         options.EnablePersistAuthorization();
     }
 });
+
+app.UseSerilogRequestLogging();
 
 app.UseAuthentication();
 app.UseAuthorization();
