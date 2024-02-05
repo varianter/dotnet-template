@@ -114,4 +114,26 @@ public class ForecastTests : TestsBase
         var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
         dbForecast.Should().BeNull();
     }
+    
+    [Fact]
+    public async Task AddForecast_WithInvalidData_ShouldReturnBadRequest()
+    {
+        var forecast = ForecastFaker.Generate();
+        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions { Scopes = new[] { Scopes.Write } });
+
+        var requestBody = new PostWeatherRequest(forecast.Date, -100, forecast.Summary);
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/weather")
+        {
+            Content = JsonContent.Create(requestBody),
+            Headers = { Authorization = new AuthenticationHeaderValue("Bearer", jwt) }
+        };
+
+        var response = await Client.SendAsync(request);
+        
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        
+        var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
+        dbForecast.Should().BeNull();
+    }
 }

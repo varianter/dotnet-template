@@ -14,6 +14,9 @@ using Testcontainers.PostgreSql;
 
 namespace Api.E2E.Shared;
 
+/// <summary>
+/// Used to create a test server for the API and setup + migrate a TestContainer-database.
+/// </summary>
 public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, ICollectionFixture<ApiFactory>
 {
     private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
@@ -42,7 +45,7 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
         _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.Postgres,
-            SchemasToInclude = ["public"]
+            SchemasToInclude = ["public"] // add your own schemas here if not using public
         });
     }
 
@@ -71,6 +74,9 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
         });
     }
 
+    /// <summary>
+    /// Used to reset the database to its original state between test runs.
+    /// </summary>
     public async Task ResetDatabaseAsync()
     {
         await _respawner.ResetAsync(_dbConnection);

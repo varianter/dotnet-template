@@ -11,13 +11,13 @@ public static class GetWeather
 {
     public static async Task<Results<Ok<GetForecastResponse>, ProblemHttpResult>> Handle(
         [FromServices] IMediator mediator,
-        [AsParameters] GetWeatherRequest request)
+        string date)
     {
-        var result = await mediator.Send(new GetForecastQuery { From = request.Date });
+        var result = await mediator.Send(new GetForecastQuery { From = DateOnly.ParseExact(date, "yyyy-MM-dd") });
 
         if (result.IsFailed)
         {
-            return TypedResults.Problem(new ProblemDetails());
+            return TypedResults.Problem(string.Join(",", result.Errors.Select(x => x.Message)), statusCode: 500);
         }
 
         return TypedResults.Ok(result.Value);

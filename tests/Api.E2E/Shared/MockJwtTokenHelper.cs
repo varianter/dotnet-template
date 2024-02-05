@@ -6,7 +6,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Api.E2E.Shared;
 
-// attribution: https://stebet.net/mocking-jwt-tokens-in-asp-net-core-integration-tests/
+/// <summary>
+/// Used to generate JWT tokens for testing purposes, uses same audience and issuer as the development settings in API (see appsettings.Development.json).
+/// attribution: https://stebet.net/mocking-jwt-tokens-in-asp-net-core-integration-tests/
+/// </summary>
 public static class MockJwtTokensHelper
 {
     private static readonly JwtSecurityTokenHandler s_tokenHandler = new();
