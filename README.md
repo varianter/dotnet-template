@@ -47,6 +47,28 @@ Important: The tests require Docker to be running.
 
 1. Run the tests by running the following command in the terminal: `dotnet test` (or run the tests from your favorite IDE).
 
-The tests are E2E-tests, which means the Api will be actually running in-memory by use of WebApplicationFactory. And a PostgreSQL database will be started in a Docker container using the TestContainers-lbirary. This means the database will be started, and migrations run against it, and the database will be removed when the tests are done.
+The tests are E2E-tests, which means the Api will be actually running in-memory by use of WebApplicationFactory. And a PostgreSQL database will be started in a Docker container using the TestContainers-library. This means the database will be started, and migrations run against it, and the database will be removed when the tests are done.
 
 For each individual test, the database will be reset to a clean state using the Respawn-library.
+
+#### Api
+
+Folder: `src/Api`
+
+##### Routes
+
+The API uses Minimal APIs in this project. The API is configured in `Program.cs` and the routes are defined in the `Routes` folder.
+
+Each group of routes has its own folder, and each endpoint under a group of routes has its own file.
+
+So for the `/weather`-group of routes, you will find the group definition under `Routes/Weather/WeatherGroup.cs`, and the endpoints under `Routes/Weather/Endpoint/GetForecast.cs` and `Routes/Weather/Endpoint/PostForecast.cs`.
+
+In addition any request or response models are defined in the `Models` folder. For example, the request model for the `AddForecast`-endpoint is defined in `Models/Weather/Models/PostWeatherRequest.cs`.
+
+##### Authentication and Authorization
+
+The API uses JWTs for authentication and authorization. The JWTs are validated using the `JwtBearer`-middleware.
+
+The Authorization-policies is set per group of routes or individual endpoints as one chooses, and is defined in the `WeatherGroup.cs`-file.
+
+The policies are defined in the `Authorization/ApiAuthorizationPolicy.cs`-file and added when configuring the services in `Program.cs`.
