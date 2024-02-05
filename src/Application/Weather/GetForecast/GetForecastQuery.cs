@@ -1,10 +1,9 @@
-using Api.Features.Weather.Models;
 using FluentResults;
 using MediatR;
 
 namespace Application.Weather.GetForecast;
 
-public record GetForecastQuery : IRequest<Result<GetForecastResponse>>
+public record GetForecastQuery : IRequest<Result<GetForecastQueryResponse>>
 {
-    public DateOnly From { get; set; } 
+    public DateOnly From { get; set; }
 }

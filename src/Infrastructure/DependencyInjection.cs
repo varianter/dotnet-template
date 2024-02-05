@@ -11,7 +11,7 @@ public static class DependencyInjection
     {
         var configSection = builder.Configuration.GetSection(nameof(InfrastructureConfig));
         builder.Services.Configure<InfrastructureConfig>(configSection);
-        
+
         builder.Services.AddDbContext<DatabaseContext>();
         builder.Services.AddScoped<IWeatherRepository, WeatherRepository>();
 

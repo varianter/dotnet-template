@@ -8,7 +8,7 @@ public static class WeatherGroup
     public static WebApplication MapWeatherGroup(this WebApplication app)
     {
         var group = app.MapGroup("weather");
-        
+
         group.MapGet("/{date}", GetWeather.Handle)
             .RequireAuthorization(AuthorizationPolicy.Read);
         group.MapPost("/", PostWeather.Handle)

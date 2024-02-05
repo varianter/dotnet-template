@@ -4,7 +4,8 @@ using MediatR;
 
 namespace Application.Weather.AddForecast;
 
-internal class AddForecastCommandHandler(IWeatherRepository weatherRepository) : IRequestHandler<AddForecastCommand, Result>
+internal class AddForecastCommandHandler(IWeatherRepository weatherRepository)
+    : IRequestHandler<AddForecastCommand, Result>
 {
     public async Task<Result> Handle(AddForecastCommand request, CancellationToken cancellationToken)
     {
@@ -12,8 +13,8 @@ internal class AddForecastCommandHandler(IWeatherRepository weatherRepository) :
 
         if (result.IsFailed)
             return result.ToResult();
-        
-        try 
+
+        try
         {
             await weatherRepository.AddForecastAsync(result.Value);
             return Result.Ok();

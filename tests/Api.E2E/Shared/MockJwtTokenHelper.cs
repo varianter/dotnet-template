@@ -1,14 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using Api.Authorization;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Api.E2E.Shared;
 
 /// <summary>
-/// Used to generate JWT tokens for testing purposes, uses same audience and issuer as the development settings in API (see appsettings.Development.json).
-/// attribution: https://stebet.net/mocking-jwt-tokens-in-asp-net-core-integration-tests/
+///     Used to generate JWT tokens for testing purposes, uses same audience and issuer as the development settings in API
+///     (see appsettings.Development.json).
+///     attribution: https://stebet.net/mocking-jwt-tokens-in-asp-net-core-integration-tests/
 /// </summary>
 public static class MockJwtTokensHelper
 {

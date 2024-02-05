@@ -1,5 +1,4 @@
 using Api.Authorization;
-using Api.Features.Weather;
 using Api.Routes.Weather;
 using Application;
 using FluentValidation;
@@ -21,7 +20,7 @@ builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddAuthorization(options => { options.AddAuthorizationPolicies(); });
 
 // FluentValidation register all validators present in this assembly
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<Api.Program>();
 
 var app = builder.Build();
 
@@ -44,7 +43,9 @@ app.MapWeatherGroup();
 app.Run();
 
 // To make it visible for E2E-tests:
-public partial class Program
+namespace Api
 {
-    
+    public partial class Program
+    {
+    }
 }

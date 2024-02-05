@@ -15,7 +15,7 @@ public class LoggingBehavior<TRequest, TResponse>(ILogger<LoggingBehavior<TReque
         CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        
+
         logger.LogInformation(
             "Start request {RequestName}", requestName);
 

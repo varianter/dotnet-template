@@ -21,7 +21,7 @@ public static class AuthorizationOptionsExtensions
         options.AddPolicy(AuthorizationPolicy.Read,
             policy => policy
                 .RequireClaim("scope", Scopes.Read));
-        
+
         options.AddPolicy(AuthorizationPolicy.Write,
             policy => policy
                 .RequireClaim("scope", Scopes.Write));

@@ -12,7 +12,7 @@ public static class DependencyInjection
                 .RegisterServicesFromAssemblyContaining(typeof(DependencyInjection))
                 .AddOpenBehavior(typeof(LoggingBehavior<,>))
         );
-        
+
         return builder;
     }
 }

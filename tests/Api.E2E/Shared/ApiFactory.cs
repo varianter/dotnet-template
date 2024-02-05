@@ -15,7 +15,7 @@ using Testcontainers.PostgreSql;
 namespace Api.E2E.Shared;
 
 /// <summary>
-/// Used to create a test server for the API and setup + migrate a TestContainer-database.
+///     Used to create a test server for the API and setup + migrate a TestContainer-database.
 /// </summary>
 public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, ICollectionFixture<ApiFactory>
 {
@@ -75,7 +75,7 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
     }
 
     /// <summary>
-    /// Used to reset the database to its original state between test runs.
+    ///     Used to reset the database to its original state between test runs.
     /// </summary>
     public async Task ResetDatabaseAsync()
     {

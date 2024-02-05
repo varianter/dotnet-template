@@ -1,4 +1,3 @@
-using Api.Features.Weather.Models;
 using Application.Weather;
 using Domain;
 using Microsoft.EntityFrameworkCore;

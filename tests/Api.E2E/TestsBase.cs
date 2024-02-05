@@ -10,7 +10,7 @@ public class TestsBase : IAsyncLifetime
 
     protected readonly HttpClient Client;
     protected readonly DatabaseContext DatabaseContext;
-    
+
     protected TestsBase(ApiFactory apiFactory)
     {
         Client = apiFactory.HttpClient;

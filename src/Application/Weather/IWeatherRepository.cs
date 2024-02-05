@@ -1,6 +1,4 @@
-using Api.Features.Weather.Models;
 using Domain;
-using FluentResults;
 
 namespace Application.Weather;
 

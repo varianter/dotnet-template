@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Api.Authorization;
 using Api.E2E.Shared;
-using Api.Features.Weather.Models;
 using Api.Routes.Weather.Models;
 using Bogus;
 using Domain;
@@ -15,15 +14,15 @@ namespace Api.E2E;
 [Collection(ApiTestCollection.CollectionName)]
 public class ForecastTests : TestsBase
 {
-    public ForecastTests(ApiFactory apiFactory) : base(apiFactory)
-    {
-    }
-
     private static readonly Faker<Forecast> ForecastFaker = new Faker<Forecast>()
         .RuleFor(x => x.Id, f => f.Random.Guid())
         .RuleFor(x => x.Date, f => f.Date.FutureDateOnly())
         .RuleFor(x => x.TemperatureC, f => f.Random.Int(-20, 55))
         .RuleFor(x => x.Summary, f => f.PickRandom(null, f.Lorem.Sentence()));
+
+    public ForecastTests(ApiFactory apiFactory) : base(apiFactory)
+    {
+    }
 
     [Fact]
     public async Task GetForecast_IfAvailableInDb_ShouldReturnForecast()
@@ -34,7 +33,8 @@ public class ForecastTests : TestsBase
         await DatabaseContext.SaveChangesAsync();
         DatabaseContext.ChangeTracker.Clear();
 
-        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions { Scopes = new[] { Scopes.Read } });
+        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
+            { Scopes = new[] { Scopes.Read } });
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/weather/{forecast.Date.ToString("yyyy-MM-dd")}")
         {
@@ -45,7 +45,7 @@ public class ForecastTests : TestsBase
 
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        var content = await response.Content.ReadFromJsonAsync<GetForecastResponse>();
+        var content = await response.Content.ReadFromJsonAsync<GetWeatherResponse>();
 
         content.Should().NotBeNull();
         content.Should().BeEquivalentTo(forecast, options => options.ExcludingMissingMembers());
@@ -54,7 +54,8 @@ public class ForecastTests : TestsBase
     [Fact]
     public async Task GetForecast_WithoutScope_ShouldReturnForbidden()
     {
-        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions { Scopes = Array.Empty<string>() });
+        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
+            { Scopes = Array.Empty<string>() });
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/weather/{DateTime.Now.ToString("yyyy-MM-dd")}")
         {
@@ -70,7 +71,8 @@ public class ForecastTests : TestsBase
     public async Task AddForecast_WithValidData_ShouldReturnCreated()
     {
         var forecast = ForecastFaker.Generate();
-        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions { Scopes = new[] { Scopes.Write } });
+        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
+            { Scopes = new[] { Scopes.Write } });
 
         var requestBody = new PostWeatherRequest(forecast.Date, forecast.TemperatureC, forecast.Summary);
 
@@ -94,7 +96,8 @@ public class ForecastTests : TestsBase
     public async Task AddForecast_WithoutScope_ShouldReturnForbidden()
     {
         var forecast = ForecastFaker.Generate();
-        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions { Scopes = Array.Empty<string>() });
+        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
+            { Scopes = Array.Empty<string>() });
 
         var requestBody = new PostWeatherRequest(forecast.Date, forecast.TemperatureC, forecast.Summary);
 
@@ -116,7 +119,8 @@ public class ForecastTests : TestsBase
     public async Task AddForecast_WithInvalidData_ShouldReturnBadRequest()
     {
         var forecast = ForecastFaker.Generate();
-        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions { Scopes = new[] { Scopes.Write } });
+        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
+            { Scopes = new[] { Scopes.Write } });
 
         var requestBody = new PostWeatherRequest(forecast.Date, -100, forecast.Summary);
 
