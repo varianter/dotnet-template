@@ -4,6 +4,7 @@ Hello! This is a basic template for a .NET 8 API project, which can be used as a
 
 - .NET 8 & C#
 - Minimal APIs
+- MediatR
 - Entity Framework Core
 - PostgreSQL
 - Docker
@@ -18,10 +19,12 @@ I do not claim this is the "correct way" to architect an API, please feel free t
 
 The architecture is based on the Clean Architecture, and the project is divided into the following layers:
 
-- Api (entry point for the application)
+- Api (presentation-layer, and entry point for the application)
 - Application (business logic)
 - Domain (domain models)
 - Infrastructure (database, caching, etc.)
+
+The application also uses the mediator-pattern when communicating between the Api and Application-layer in a de-coupled manner. This is achieved by using the MediatR library. The functional side of this means that the application is divided into commands and queries (see `AddForecastComman` and `GetForecastQuery`), and the business logic is implemented in handlers (see same folders are command/queries).
 
 ## Getting started
 
