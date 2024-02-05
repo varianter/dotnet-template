@@ -1,14 +1,11 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Api.Authorization;
 using Api.E2E.Shared;
 using Api.Features.Weather.Models;
 using Api.Routes.Weather.Models;
 using Bogus;
-using Bogus.DataSets;
 using Domain;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +18,7 @@ public class ForecastTests : TestsBase
     public ForecastTests(ApiFactory apiFactory) : base(apiFactory)
     {
     }
-    
+
     private static readonly Faker<Forecast> ForecastFaker = new Faker<Forecast>()
         .RuleFor(x => x.Id, f => f.Random.Guid())
         .RuleFor(x => x.Date, f => f.Date.FutureDateOnly())
@@ -36,7 +33,7 @@ public class ForecastTests : TestsBase
         DatabaseContext.Forecasts.Add(forecast);
         await DatabaseContext.SaveChangesAsync();
         DatabaseContext.ChangeTracker.Clear();
-        
+
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions { Scopes = new[] { Scopes.Read } });
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/weather/{forecast.Date.ToString("yyyy-MM-dd")}")
@@ -49,11 +46,11 @@ public class ForecastTests : TestsBase
         response.IsSuccessStatusCode.Should().BeTrue();
 
         var content = await response.Content.ReadFromJsonAsync<GetForecastResponse>();
-        
+
         content.Should().NotBeNull();
         content.Should().BeEquivalentTo(forecast, options => options.ExcludingMissingMembers());
     }
-    
+
     [Fact]
     public async Task GetForecast_WithoutScope_ShouldReturnForbidden()
     {
@@ -68,7 +65,7 @@ public class ForecastTests : TestsBase
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
-    
+
     [Fact]
     public async Task AddForecast_WithValidData_ShouldReturnCreated()
     {
@@ -84,15 +81,15 @@ public class ForecastTests : TestsBase
         };
 
         var response = await Client.SendAsync(request);
-        
+
         response.StatusCode.Should().Be(HttpStatusCode.Created);
 
         var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
-        
+
         dbForecast.Should().NotBeNull();
         dbForecast.Should().BeEquivalentTo(forecast, options => options.Excluding(f => f.Id));
     }
-    
+
     [Fact]
     public async Task AddForecast_WithoutScope_ShouldReturnForbidden()
     {
@@ -108,13 +105,13 @@ public class ForecastTests : TestsBase
         };
 
         var response = await Client.SendAsync(request);
-        
+
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        
+
         var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
         dbForecast.Should().BeNull();
     }
-    
+
     [Fact]
     public async Task AddForecast_WithInvalidData_ShouldReturnBadRequest()
     {
@@ -130,9 +127,9 @@ public class ForecastTests : TestsBase
         };
 
         var response = await Client.SendAsync(request);
-        
+
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        
+
         var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
         dbForecast.Should().BeNull();
     }
