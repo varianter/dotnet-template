@@ -11,7 +11,7 @@ public class Forecast
 
     public static Result<Forecast> New(DateOnly date, int temperatureC, string? summary)
     {
-        if (temperatureC < -90 || temperatureC > 60) return Result.Fail("Temperature must be between -90 and 60.");
+        if (temperatureC is < -90 or > 60) return Result.Fail("Temperature must be between -90 and 60.");
 
         return new Forecast
         {
