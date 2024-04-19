@@ -9,9 +9,9 @@ namespace Api.Routes.Weather.Endpoints;
 public static class PostWeather
 {
     public static async Task<Results<Created, ProblemHttpResult, ValidationProblem>> Handle(
-        [FromServices] IMediator mediator,
-        [FromServices] PostWeatherRequestValidator validator,
-        PostWeatherRequest request)
+        IMediator mediator,
+        PostWeatherRequestValidator validator,
+        [FromBody] PostWeatherRequest request)
     {
         var validationResult = await validator.ValidateAsync(request);
         if (!validationResult.IsValid) return TypedResults.ValidationProblem(validationResult.ToDictionary());

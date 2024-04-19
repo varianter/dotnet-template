@@ -9,13 +9,12 @@ public class WeatherRepository(DatabaseContext context) : IWeatherRepository
     public async Task<Forecast?> GetForecastAsync(DateOnly date)
     {
         return await context.Forecasts
-            .Where(f => f.Date == date)
+            .Where(f => f.Date == date && !f.IsDeleted)
             .FirstOrDefaultAsync();
     }
 
     public async Task AddForecastAsync(Forecast forecast)
     {
         context.Forecasts.Add(forecast);
-        await context.SaveChangesAsync();
     }
 }

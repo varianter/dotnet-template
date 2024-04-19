@@ -56,7 +56,8 @@ app.UseAuthorization();
 // Redirect to swagger
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
-app.MapWeatherGroup();
+app.MapWeatherUserGroup()
+   .MapWeatherAdminGroup();
 
 app.Run();
 

@@ -8,6 +8,7 @@ public class Forecast
     public DateOnly Date { get; private set; }
     public int TemperatureC { get; private set; }
     public string? Summary { get; private set; }
+    public bool IsDeleted { get; set; }
 
     public static Result<Forecast> New(DateOnly date, int temperatureC, string? summary)
     {
@@ -20,5 +21,10 @@ public class Forecast
             TemperatureC = temperatureC,
             Summary = summary
         };
+    }
+    
+    public void Delete()
+    {
+        IsDeleted = true;
     }
 }

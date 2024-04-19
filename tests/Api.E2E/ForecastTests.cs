@@ -12,17 +12,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.E2E;
 
 [Collection(ApiTestCollection.CollectionName)]
-public class ForecastTests : TestsBase
+public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
 {
     private static readonly Faker<Forecast> ForecastFaker = new Faker<Forecast>()
         .RuleFor(x => x.Id, f => f.Random.Guid())
         .RuleFor(x => x.Date, f => f.Date.FutureDateOnly())
         .RuleFor(x => x.TemperatureC, f => f.Random.Int(-20, 55))
-        .RuleFor(x => x.Summary, f => f.PickRandom(null, f.Lorem.Sentence()));
-
-    public ForecastTests(ApiFactory apiFactory) : base(apiFactory)
-    {
-    }
+        .RuleFor(x => x.Summary, f => f.PickRandom(null, f.Lorem.Sentence()))
+        .RuleFor(x => x.IsDeleted, f => false);
 
     [Fact]
     public async Task GetForecast_IfAvailableInDb_ShouldReturnForecast()
@@ -34,7 +31,7 @@ public class ForecastTests : TestsBase
         DatabaseContext.ChangeTracker.Clear();
 
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
-            { Scopes = new[] { Scopes.Read } });
+            { Scopes = new[] { Scopes.User } });
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/weather/{forecast.Date.ToString("yyyy-MM-dd")}")
         {
@@ -72,7 +69,7 @@ public class ForecastTests : TestsBase
     {
         var forecast = ForecastFaker.Generate();
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
-            { Scopes = new[] { Scopes.Write } });
+            { Scopes = new[] { Scopes.User, Scopes.Write } });
 
         var requestBody = new PostWeatherRequest(forecast.Date, forecast.TemperatureC, forecast.Summary);
 
@@ -120,7 +117,7 @@ public class ForecastTests : TestsBase
     {
         var forecast = ForecastFaker.Generate();
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
-            { Scopes = new[] { Scopes.Write } });
+            { Scopes = new[] { Scopes.User, Scopes.Write } });
 
         var requestBody = new PostWeatherRequest(forecast.Date, -100, forecast.Summary);
 
@@ -137,5 +134,58 @@ public class ForecastTests : TestsBase
 
         var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
         dbForecast.Should().BeNull();
+    }
+    
+    [Fact]
+    public async Task DeleteForecast_AsAdmin_ShouldReturnNoContent()
+    {
+        // Arrange
+        var forecast = ForecastFaker.Generate();
+        DatabaseContext.Forecasts.Add(forecast);
+        await DatabaseContext.SaveChangesAsync();
+        DatabaseContext.ChangeTracker.Clear();
+
+        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
+            { Scopes = new[] { Scopes.Admin } });
+
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"/weather/{forecast.Date.ToString("yyyy-MM-dd")}")
+        {
+            Headers = { Authorization = new AuthenticationHeaderValue("Bearer", jwt) }
+        };
+
+        var response = await Client.SendAsync(request);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        
+        var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
+        dbForecast.Should().NotBeNull();
+        dbForecast.IsDeleted.Should().BeTrue();
+    }
+    
+    public async Task DeleteForecast_AsUser_ShouldReturnForbidden()
+    {
+        // Arrange
+        var forecast = ForecastFaker.Generate();
+        DatabaseContext.Forecasts.Add(forecast);
+        await DatabaseContext.SaveChangesAsync();
+        DatabaseContext.ChangeTracker.Clear();
+
+        var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
+            { Scopes = new[] { Scopes.User } });
+
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"/weather/{forecast.Date.ToString("yyyy-MM-dd")}")
+        {
+            Headers = { Authorization = new AuthenticationHeaderValue("Bearer", jwt) }
+        };
+
+        var response = await Client.SendAsync(request);
+
+        response.IsSuccessStatusCode.Should().BeFalse();
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        
+        var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
+        dbForecast.Should().NotBeNull();
+        dbForecast.IsDeleted.Should().BeFalse();
     }
 }

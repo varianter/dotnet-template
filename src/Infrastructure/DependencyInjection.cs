@@ -1,4 +1,5 @@
-﻿using Application.Weather;
+﻿using Application;
+using Application.Weather;
 using Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +15,8 @@ public static class DependencyInjection
 
         builder.Services.AddDbContext<DatabaseContext>();
         builder.Services.AddScoped<IWeatherRepository, WeatherRepository>();
+        
+        builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<DatabaseContext>());
 
         return builder;
     }
