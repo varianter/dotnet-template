@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Npgsql;
 using Respawn;
+using Respawn.Graph;
 using Testcontainers.PostgreSql;
 
 namespace Api.E2E.Shared;
@@ -24,6 +25,9 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
         .WithUsername("bob123")
         .WithPassword("CorrectHorseBatteryStaple")
         .WithImage("postgres:13-alpine3.19")
+        .WithName("ApiFactoryTestsDb")
+        .WithLabel("reuse-id", "ApiFactoryTestsDb")
+        .WithReuse(true)
         .Build();
 
     private DbConnection _dbConnection = default!;
@@ -45,7 +49,11 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
         _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.Postgres,
-            SchemasToInclude = ["public"] // add your own schemas here if not using public
+            SchemasToInclude = ["public"], // add your own schemas here if not using public
+            TablesToIgnore =
+            [
+                new Table("public", "__EFMigrationsHistory"),
+            ]
         });
     }
 
