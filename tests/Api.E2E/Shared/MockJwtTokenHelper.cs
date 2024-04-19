@@ -23,6 +23,7 @@ public static class MockJwtTokensHelper
         SigningCredentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
     }
 
+    // These could be fetched from appsettings in ApiFactory, but would make the code more finicky
     public static string Audience { get; } = "weather.dev.api";
     public static string Issuer { get; } = "dotnet-user-jwts";
     public static SecurityKey SecurityKey { get; }

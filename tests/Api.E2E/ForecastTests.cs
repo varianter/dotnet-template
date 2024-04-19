@@ -133,6 +133,7 @@ public class ForecastTests : TestsBase
         var response = await Client.SendAsync(request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.Content.Headers.Should().ContainKey("Content-Type").WhoseValue.Should().Contain("application/problem+json");
 
         var dbForecast = await DatabaseContext.Forecasts.FirstOrDefaultAsync();
         dbForecast.Should().BeNull();

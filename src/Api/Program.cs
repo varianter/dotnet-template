@@ -8,7 +8,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add other layers
-builder.AddApplicaton();
+builder.AddApplication();
 builder.AddInfrastructure();
 
 // Add services to the container.
@@ -29,7 +29,13 @@ builder.Host.UseSerilog((context, services, config) => config
     .ReadFrom.Services(services)
 );
 
+// Add ProblemDetails for error handling of all non-problem error responses
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
+
+// Produce a ProblemDetails payload for exceptions
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
@@ -46,6 +52,9 @@ app.UseSerilogRequestLogging();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Redirect to swagger
+app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
 app.MapWeatherGroup();
 

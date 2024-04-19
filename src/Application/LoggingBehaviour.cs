@@ -26,7 +26,7 @@ public class LoggingBehavior<TRequest, TResponse>(ILogger<LoggingBehavior<TReque
                 "Completed request {RequestName}", requestName);
         else
             logger.LogError(
-                "Request {RequestName} failed with error", requestName);
+                "Request {RequestName} failed with error with {@Error}", requestName, result.Errors);
 
         return result;
     }

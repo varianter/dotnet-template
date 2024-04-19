@@ -5,7 +5,7 @@ namespace Application;
 
 public static class DependencyInjection
 {
-    public static IHostApplicationBuilder AddApplicaton(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddApplication(this IHostApplicationBuilder builder)
     {
         builder.Services.AddMediatR(cfg =>
             cfg
