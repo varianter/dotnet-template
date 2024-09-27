@@ -1,5 +1,6 @@
 using Api.Authorization;
 using Api.Routes.Weather;
+using Api.Swagger;
 using Application;
 using FluentValidation;
 using Infrastructure;
@@ -14,7 +15,7 @@ builder.AddInfrastructure();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options => options.AddCustomSwaggerGenOptions());
 
 // Add JWT-token authentication + our custom authorization policies
 builder.Services.AddAuthentication().AddJwtBearer();
@@ -39,14 +40,7 @@ app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-    if (app.Environment.IsDevelopment())
-    {
-        options.EnableTryItOutByDefault();
-        options.EnablePersistAuthorization();
-    }
-});
+app.UseSwaggerUI(options => options.AddCustomSwaggerUIOptions(app.Environment.IsDevelopment()));
 
 app.UseSerilogRequestLogging();
 
