@@ -32,7 +32,6 @@ public class TestContainersFactory(TestContainersConfig config, ILogger<TestCont
                 logger.LogInformation("Starting TestContainers");
                 _postgreSqlContainer = new PostgreSqlBuilder()
                     .WithName(databaseTestContainerName)
-                    .WithLabel("reuse-id", databaseTestContainerName)
                     .WithReuse(true)
                     .WithDatabase(DatabaseName)
                     .WithUsername(Username)
