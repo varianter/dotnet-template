@@ -26,7 +26,6 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
         .WithPassword("CorrectHorseBatteryStaple")
         .WithImage("postgres:13-alpine3.19")
         .WithName("ApiFactoryTestsDb")
-        .WithLabel("reuse-id", "ApiFactoryTestsDb")
         .WithReuse(true)
         .Build();
 
