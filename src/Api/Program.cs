@@ -33,6 +33,9 @@ builder.Host.UseSerilog((context, services, config) => config
 // Add ProblemDetails for error handling of all non-problem error responses
 builder.Services.AddProblemDetails();
 
+builder.Services.AddHealthChecks()
+    .AddInfrastructureHealthChecks();
+
 var app = builder.Build();
 
 // Produce a ProblemDetails payload for exceptions
@@ -49,6 +52,8 @@ app.UseAuthorization();
 
 // Redirect to swagger
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+
+app.MapHealthChecks("/healthz");
 
 app.MapWeatherUserGroup()
    .MapWeatherAdminGroup();

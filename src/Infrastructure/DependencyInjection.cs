@@ -14,10 +14,18 @@ public static class DependencyInjection
         builder.Services.Configure<InfrastructureConfig>(configSection);
 
         builder.Services.AddDbContext<DatabaseContext>();
+
         builder.Services.AddScoped<IWeatherRepository, WeatherRepository>();
         
         builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<DatabaseContext>());
 
         return builder;
+    }
+    
+    public static IHealthChecksBuilder AddInfrastructureHealthChecks(this IHealthChecksBuilder healthChecksBuilder)
+    {
+        healthChecksBuilder.AddDbContextCheck<DatabaseContext>();
+
+        return healthChecksBuilder;
     }
 }
