@@ -31,7 +31,7 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
         DatabaseContext.ChangeTracker.Clear();
 
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
-            { Scopes = new[] { Scopes.User } });
+            { Scopes = new[] { Scopes.Read } });
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/weather/{forecast.Date.ToString("yyyy-MM-dd")}")
         {
@@ -69,9 +69,9 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
     {
         var forecast = ForecastFaker.Generate();
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
-            { Scopes = new[] { Scopes.User, Scopes.Write } });
+            { Scopes = new[] { Scopes.Read, Scopes.Write } });
 
-        var requestBody = new PostWeatherRequest(forecast.Date, forecast.TemperatureC, forecast.Summary);
+        var requestBody = new PostWeatherRequest(new DateTimeOffset(forecast.Date.ToDateTime(TimeOnly.MinValue)), forecast.TemperatureC, forecast.Summary);
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/weather")
         {
@@ -96,7 +96,7 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
             { Scopes = Array.Empty<string>() });
 
-        var requestBody = new PostWeatherRequest(forecast.Date, forecast.TemperatureC, forecast.Summary);
+        var requestBody = new PostWeatherRequest(new DateTimeOffset(forecast.Date.ToDateTime(TimeOnly.MinValue)), forecast.TemperatureC, forecast.Summary);
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/weather")
         {
@@ -117,9 +117,9 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
     {
         var forecast = ForecastFaker.Generate();
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
-            { Scopes = new[] { Scopes.User, Scopes.Write } });
+            { Scopes = new[] { Scopes.Read, Scopes.Write } });
 
-        var requestBody = new PostWeatherRequest(forecast.Date, -100, forecast.Summary);
+        var requestBody = new PostWeatherRequest(new DateTimeOffset(forecast.Date.ToDateTime(TimeOnly.MinValue)), -100, forecast.Summary);
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/weather")
         {
@@ -172,7 +172,7 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
         DatabaseContext.ChangeTracker.Clear();
 
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
-            { Scopes = new[] { Scopes.User } });
+            { Scopes = new[] { Scopes.Read } });
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/weather/{forecast.Date.ToString("yyyy-MM-dd")}")
         {
