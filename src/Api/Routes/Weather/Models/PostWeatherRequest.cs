@@ -2,14 +2,14 @@ using FluentValidation;
 
 namespace Api.Routes.Weather.Models;
 
-public record PostWeatherRequest(DateOnly Date, int TemperatureC, string? Summary);
+public record PostWeatherRequest(DateTimeOffset Date, int TemperatureC, string? Summary);
 
 public class PostWeatherRequestValidator : AbstractValidator<PostWeatherRequest>
 {
     public PostWeatherRequestValidator()
     {
         RuleFor(x => x.Date).NotEmpty()
-            .GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.Now))
+            .GreaterThanOrEqualTo(DateTimeOffset.UtcNow)
             .WithMessage("Date must be greater than or equal to today's date");
 
         RuleFor(x => x.TemperatureC)

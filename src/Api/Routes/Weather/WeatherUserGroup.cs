@@ -9,7 +9,8 @@ public static class WeatherUserGroup
     {
         var group = app.MapUserGroup("weather");
 
-        group.MapGet("/{date}", GetWeather.Handle);
+        group.MapGet("/{date}", GetWeather.Handle)
+            .RequireAuthorization(AuthorizationPolicy.User);
         group.MapPost("/", PostWeather.Handle)
             .RequireAuthorization(AuthorizationPolicy.Write);
 

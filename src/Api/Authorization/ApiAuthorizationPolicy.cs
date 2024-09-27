@@ -12,7 +12,7 @@ public static class AuthorizationPolicy
 public static class Scopes
 {
     public const string Write = "write";
-    public const string User = "user";
+    public const string Read = "read";
     public const string Admin = "admin";
 }
 
@@ -22,7 +22,7 @@ public static class AuthorizationOptionsExtensions
     {
         options.AddPolicy(AuthorizationPolicy.User,
             policy => policy
-                .RequireClaim("scope", Scopes.User, Scopes.Admin));
+                .RequireClaim("scope", Scopes.Read, Scopes.Admin));
 
         options.AddPolicy(AuthorizationPolicy.Write,
             policy => policy

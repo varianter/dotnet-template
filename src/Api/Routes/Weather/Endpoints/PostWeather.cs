@@ -16,7 +16,8 @@ public static class PostWeather
         var validationResult = await validator.ValidateAsync(request);
         if (!validationResult.IsValid) return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
-        var result = await mediator.Send(new AddForecastCommand(request.Date, request.TemperatureC, request.Summary));
+        var dateOnly = new DateOnly(request.Date.Year, request.Date.Month, request.Date.Day);
+        var result = await mediator.Send(new AddForecastCommand(dateOnly, request.TemperatureC, request.Summary));
 
         if (result.IsFailed)
             return TypedResults.Problem(string.Join(",", result.Errors.Select(x => x.Message)), statusCode: 500);

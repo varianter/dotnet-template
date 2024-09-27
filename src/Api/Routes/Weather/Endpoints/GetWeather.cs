@@ -19,12 +19,15 @@ public static class GetWeather
 
         var forecast = result.Value;
 
-        var response = new GetWeatherResponse(
-            new GetWeatherResponse.ForecastPayload(
-                forecast.Date,
-                forecast.TemperatureC,
-                forecast.Summary
-            ));
+        var response = new GetWeatherResponse
+        {
+            Forecast =
+                new GetWeatherResponse.ForecastPayload(
+                    forecast.Date,
+                    forecast.TemperatureC,
+                    forecast.Summary
+                )
+        };
 
         return TypedResults.Ok(response);
     }
