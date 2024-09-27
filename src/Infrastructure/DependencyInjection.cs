@@ -1,6 +1,7 @@
 ﻿using Application;
 using Application.Weather;
 using Infrastructure.Repositories;
+using Infrastructure.TestContainers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -10,9 +11,15 @@ public static class DependencyInjection
 {
     public static IHostApplicationBuilder AddInfrastructure(this IHostApplicationBuilder builder)
     {
-        var configSection = builder.Configuration.GetSection(nameof(InfrastructureConfig));
-        builder.Services.Configure<InfrastructureConfig>(configSection);
+        builder
+            .AddInfrastructureConfig()
+            .AddTestContainersConfig(out var currentTestContainersConfig);
 
+        if (currentTestContainersConfig.Enabled)
+        {
+            builder.AddTestContainers();
+        }
+        
         builder.Services.AddDbContext<DatabaseContext>();
 
         builder.Services.AddScoped<IWeatherRepository, WeatherRepository>();

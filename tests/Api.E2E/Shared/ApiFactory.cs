@@ -1,11 +1,17 @@
 using System.Data.Common;
+using System.Diagnostics;
 using Infrastructure;
+using Infrastructure.TestContainers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Npgsql;
@@ -20,29 +26,36 @@ namespace Api.E2E.Shared;
 /// </summary>
 public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, ICollectionFixture<ApiFactory>
 {
-    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
-        .WithDatabase("test")
-        .WithUsername("bob123")
-        .WithPassword("CorrectHorseBatteryStaple")
-        .WithImage("postgres:13-alpine3.19")
-        .WithName("ApiFactoryTestsDb")
-        .WithReuse(true)
-        .Build();
-
     private DbConnection _dbConnection = default!;
     private Respawner _respawner = default!;
+    public TestContainersFactory TestContainersFactory { get; private set; } = default!;
     public HttpClient HttpClient { get; private set; } = default!;
     public DatabaseContext DbContext { get; private set; } = default!;
 
     public async Task InitializeAsync()
     {
-        await _postgreSqlContainer.StartAsync();
-        DbContext = CreateContext();
-        await DbContext.Database.MigrateAsync();
-
+        var config = new TestContainersConfig
+        {
+            Enabled = true,
+            RunMigrations = true
+        };
+        
+        TestContainersFactory = new TestContainersFactory(config, NullLogger<TestContainersFactory>.Instance);
+        await TestContainersFactory.Start(overrides: new TestContainersOverrides
+        {
+            DatabaseTestContainerName = "testcontainers-api-e2e-tests-db",
+            HostPort = 51235
+        });
+        
+        DbContext = new DatabaseContext(Options.Create(new InfrastructureConfig
+        {
+            ConnectionString = TestContainersFactory.CurrentConnectionString ?? throw new UnreachableException(),
+            EnableSensitiveDataLogging = true
+        }));
+        
         HttpClient = CreateClient();
 
-        _dbConnection = new NpgsqlConnection(_postgreSqlContainer.GetConnectionString());
+        _dbConnection = new NpgsqlConnection(TestContainersFactory.CurrentConnectionString);
         await _dbConnection.OpenAsync();
 
         _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
@@ -58,17 +71,27 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
 
     public new Task DisposeAsync()
     {
-        return _postgreSqlContainer.StopAsync();
+        HttpClient.Dispose();
+        return TestContainersFactory.Stop();
+    }
+    
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        builder.ConfigureHostConfiguration(config => config.AddJsonFile("appsettings.Test.json"));
+        return base.CreateHost(builder);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureTestServices(services =>
         {
+            services.RemoveAll(typeof(TestContainersService));
+
             services.Configure<InfrastructureConfig>(opts =>
             {
-                opts.ConnectionString = _postgreSqlContainer.GetConnectionString();
+                opts.ConnectionString = TestContainersFactory.CurrentConnectionString ?? throw new UnreachableException();
             });
+            
             services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, opts =>
             {
                 var openIdConnectConfiguration = new OpenIdConnectConfiguration
@@ -87,15 +110,5 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
     public async Task ResetDatabaseAsync()
     {
         await _respawner.ResetAsync(_dbConnection);
-    }
-
-    private DatabaseContext CreateContext()
-    {
-        return new DatabaseContext(
-            Options.Create(
-                new InfrastructureConfig
-                {
-                    ConnectionString = _postgreSqlContainer.GetConnectionString()
-                }));
     }
 }
