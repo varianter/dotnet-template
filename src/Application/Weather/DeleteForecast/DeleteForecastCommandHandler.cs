@@ -1,8 +1,7 @@
-using Domain;
 using FluentResults;
 using MediatR;
 
-namespace Application.Weather.AddForecast;
+namespace Application.Weather.DeleteForecast;
 
 internal class DeleteForecastCommandHandler(IWeatherRepository weatherRepository, IUnitOfWork unitOfWork)
     : IRequestHandler<DeleteForecastCommand, Result>

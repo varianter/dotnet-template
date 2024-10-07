@@ -163,6 +163,7 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
         dbForecast.IsDeleted.Should().BeTrue();
     }
     
+    [Fact]
     public async Task DeleteForecast_AsUser_ShouldReturnForbidden()
     {
         // Arrange
