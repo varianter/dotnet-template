@@ -2,7 +2,6 @@ using Api.Routes.Weather.Models;
 using Application.Weather.GetForecast;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Routes.Weather.Endpoints;
 

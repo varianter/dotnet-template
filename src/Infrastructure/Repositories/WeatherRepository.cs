@@ -15,6 +15,6 @@ public class WeatherRepository(DatabaseContext context) : IWeatherRepository
 
     public async Task AddForecastAsync(Forecast forecast)
     {
-        context.Forecasts.Add(forecast);
+        await context.Forecasts.AddAsync(forecast);
     }
 }

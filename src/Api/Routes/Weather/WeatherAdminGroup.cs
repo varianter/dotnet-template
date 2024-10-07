@@ -1,4 +1,3 @@
-using Api.Authorization;
 using Api.Routes.Weather.Endpoints;
 
 namespace Api.Routes.Weather;

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -17,7 +16,6 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Npgsql;
 using Respawn;
 using Respawn.Graph;
-using Testcontainers.PostgreSql;
 
 namespace Api.E2E.Shared;
 
