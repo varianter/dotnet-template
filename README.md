@@ -26,6 +26,12 @@ The architecture is based on the Clean Architecture, and the project is divided 
 
 The application also uses the mediator-pattern when communicating between the Api and Application-layer in a de-coupled manner. This is achieved by using the MediatR library. The functional side of this means that the application is divided into commands and queries (see `AddForecastComman` and `GetForecastQuery`), and the business logic is implemented in handlers (see same folders are command/queries).
 
+### Dependency graph
+
+<img src="./DotnetTemplateDependencyGraph.png" alt="The solution dependency graph" width="500"/>
+
+As can be seen, in the solution Api depends upon Infrastructure, which depends upon the core Application and Domain projects. But in essence Api only does this as the entry point of the application, which is responsible for composing everything through `DependencyInjection`. Other than that, Api should use nothing from Infrastructure, and only depend on Application and Domain.
+
 ## Getting started
 
 ### Prerequisites
