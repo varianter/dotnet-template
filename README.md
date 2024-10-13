@@ -24,7 +24,7 @@ The architecture is based on the Clean Architecture, and the project is divided 
 - Domain (domain models)
 - Infrastructure (database, caching, etc.)
 
-The application also uses the mediator-pattern when communicating between the Api and Application-layer in a de-coupled manner. This is achieved by using the MediatR library. The functional side of this means that the application is divided into commands and queries (see `AddForecastComman` and `GetForecastQuery`), and the business logic is implemented in handlers (see same folders are command/queries).
+The application also uses the mediator-pattern when communicating between the Api and Application-layer in a de-coupled manner. This is achieved by using the MediatR library. The functional side of this means that the application is divided into commands and queries (see `AddForecastCommand` and `GetForecastQuery`), and the business logic is implemented in handlers (see same folders are command/queries).
 
 ### Dependency graph
 
@@ -46,6 +46,8 @@ As can be seen, in the solution Api depends upon Infrastructure, which depends u
 1. Start the API by running the following command in the terminal: `dotnet run --project src/Api/Api.csproj`. Alternatively, you can run the project from your favorite IDE.
 1. Once the API is running, open `http://localhost:5062/swagger/` in your web browser to access the Swagger UI.
 1. To authenticate with the API, you will need a JWT token that is printed when you run `setup-jwts.sh`. Paste this token into the Swagger UI to start using the API. If you need to retrieve the token again, you can run `dotnet user-jwts print <id of the token>` from the `src/Api` folder.
+
+**Important**: For local development, if `TestContainers:Enabled` is set to `true` in the `appsettings.Development.json`-file (it is by default), the Api will start a PostgreSQL database in a Docker container using TestContainers. This means that Docker must be running when starting the Api.
 
 ### Testing
 
