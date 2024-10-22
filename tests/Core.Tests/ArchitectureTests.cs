@@ -1,11 +1,13 @@
 using System.Reflection;
+using Core.Tests.Rules;
 using FluentAssertions;
+using MediatR;
 using NetArchTest.Rules;
 using Xunit.Abstractions;
 
 namespace Core.Tests;
 
-public class ArchitectureTests()
+public class ArchitectureTests(ITestOutputHelper testOutputHelper)
 {
     private static readonly Assembly ApiAssembly = Assembly.GetAssembly(typeof(Api.Program));
     private static readonly Assembly InfrastructureAssembly = Assembly.GetAssembly(typeof(Infrastructure.DependencyInjection));
@@ -21,6 +23,8 @@ public class ArchitectureTests()
             .ShouldNot()
             .HaveDependencyOn("Infrastructure")
             .GetResult();
+        
+        LogIfFailure(result);
 
         result.IsSuccessful.Should().BeTrue();
     }
@@ -32,6 +36,8 @@ public class ArchitectureTests()
             .ShouldNot()
             .HaveDependencyOn("Api")
             .GetResult();
+        
+        LogIfFailure(result);
 
         result.IsSuccessful.Should().BeTrue();
     }
@@ -43,6 +49,8 @@ public class ArchitectureTests()
             .ShouldNot()
             .HaveDependencyOnAny("Api", "Infrastructure")
             .GetResult();
+        
+        LogIfFailure(result);
 
         result.IsSuccessful.Should().BeTrue();
     }
@@ -54,7 +62,47 @@ public class ArchitectureTests()
             .ShouldNot()
             .HaveDependencyOnAny("Api", "Infrastructure", "Application")
             .GetResult();
+        
+        LogIfFailure(result);
 
         result.IsSuccessful.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void IRequests_Should_Return_Result_Or_ResultOfT()
+    {
+        var requestShouldWrapResultRule = new RequestShouldWrapResultRule();
+        
+        var result = Types
+            .InAssembly(ApplicationAssembly)
+            .That()
+            .ImplementInterface(typeof(IRequest<>))
+            .Should()
+            .MeetCustomRule(requestShouldWrapResultRule)
+            .GetResult();
+
+        LogIfFailure(result);
+        
+        result.IsSuccessful.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IRequests_Should_Not_Implement_Plain_Request()
+    {
+        var result = Types
+            .InAssembly(ApplicationAssembly)
+            .ShouldNot()
+            .ImplementInterface(typeof(IRequest))
+            .GetResult();
+
+        LogIfFailure(result);
+        result.IsSuccessful.Should().BeTrue();
+    }
+
+    private void LogIfFailure(TestResult result)
+    {
+        if (result.IsSuccessful) return;
+
+        testOutputHelper.WriteLine("Types that failed to meet the rule: " + string.Join(", ", result.FailingTypes));
     }
 }
