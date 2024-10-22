@@ -101,10 +101,8 @@ public class ArchitectureTests(ITestOutputHelper testOutputHelper)
 
     private void LogIfFailure(TestResult result)
     {
-        if (!result.IsSuccessful)
-        {
-            testOutputHelper.WriteLine("Types that failed to meet the rule:");
-            foreach (var ft in result.FailingTypes) testOutputHelper.WriteLine(ft.ToString());
-        }
+        if (result.IsSuccessful) return;
+
+        testOutputHelper.WriteLine("Types that failed to meet the rule: " + string.Join(", ", result.FailingTypes));
     }
 }

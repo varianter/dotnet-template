@@ -20,13 +20,10 @@ public class RequestShouldWrapResultRule : ICustomRule
             .InterfaceType as GenericInstanceType;
         
         var responseType = requestType.GenericArguments[0];
-        
+
         // Response type should be Result or Result<T>
-        if (TypeReferenceMatchesType(responseType, ResultType)
-            || TypeReferenceMatchesType(responseType, ResultGenericType))
-            return true;
-        
-        return false;
+        return TypeReferenceMatchesType(responseType, ResultType)
+               || TypeReferenceMatchesType(responseType, ResultGenericType);
     }
     
     private static bool TypeReferenceMatchesType(TypeReference typeReference, Type type)
