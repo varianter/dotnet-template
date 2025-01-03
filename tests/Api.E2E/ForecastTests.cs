@@ -7,6 +7,7 @@ using Api.Routes.Weather.Models;
 using Bogus;
 using Domain;
 using FluentAssertions;
+using Infrastructure.TestContainers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.E2E;
@@ -14,21 +15,15 @@ namespace Api.E2E;
 [Collection(ApiTestCollection.CollectionName)]
 public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
 {
-    private static readonly Faker<Forecast> ForecastFaker = new Faker<Forecast>()
-        .RuleFor(x => x.Id, f => f.Random.Guid())
-        .RuleFor(x => x.Date, f => f.Date.FutureDateOnly())
-        .RuleFor(x => x.TemperatureC, f => f.Random.Int(-20, 55))
-        .RuleFor(x => x.Summary, f => f.PickRandom(null, f.Lorem.Sentence()))
-        .RuleFor(x => x.IsDeleted, f => false);
-
     [Fact]
     public async Task GetForecast_IfAvailableInDb_ShouldReturnForecast()
     {
         // Arrange
-        var forecast = ForecastFaker.Generate();
-        DatabaseContext.Forecasts.Add(forecast);
-        await DatabaseContext.SaveChangesAsync();
-        DatabaseContext.ChangeTracker.Clear();
+        var savedData = await new SimulatedDataBuilder()
+            .WithForecasts(1)
+            .Save(DatabaseContext);
+        
+        var forecast = savedData.Forecasts.Single();
 
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
             { Scopes = [Scopes.Read] });
@@ -67,8 +62,10 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
     [Fact]
     public async Task AddForecast_WithValidData_ShouldReturnCreated()
     {
-        var forecast = ForecastFaker.Generate();
+        var forecast = SimulatedDataBuilder.Forecasts.Generate();
+        
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
+            
             { Scopes = [Scopes.Read, Scopes.Write] });
 
         var requestBody = new PostWeatherRequest(new DateTimeOffset(forecast.Date.ToDateTime(TimeOnly.MinValue)),
@@ -93,7 +90,7 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
     [Fact]
     public async Task AddForecast_WithoutScope_ShouldReturnForbidden()
     {
-        var forecast = ForecastFaker.Generate();
+        var forecast = SimulatedDataBuilder.Forecasts.Generate();
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
             { Scopes = [] });
 
@@ -117,7 +114,7 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
     [Fact]
     public async Task AddForecast_WithInvalidData_ShouldReturnBadRequest()
     {
-        var forecast = ForecastFaker.Generate();
+        var forecast = SimulatedDataBuilder.Forecasts.Generate();
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
             { Scopes = [Scopes.Read, Scopes.Write] });
 
@@ -144,10 +141,11 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
     public async Task DeleteForecast_AsAdmin_ShouldReturnNoContent()
     {
         // Arrange
-        var forecast = ForecastFaker.Generate();
-        DatabaseContext.Forecasts.Add(forecast);
-        await DatabaseContext.SaveChangesAsync();
-        DatabaseContext.ChangeTracker.Clear();
+        var savedData = await new SimulatedDataBuilder()
+            .WithForecasts(1)
+            .Save(DatabaseContext);
+        
+        var forecast = savedData.Forecasts.Single();
 
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
             { Scopes = [Scopes.Admin] });
@@ -171,10 +169,12 @@ public class ForecastTests(ApiFactory apiFactory) : TestsBase(apiFactory)
     public async Task DeleteForecast_AsUser_ShouldReturnForbidden()
     {
         // Arrange
-        var forecast = ForecastFaker.Generate();
-        DatabaseContext.Forecasts.Add(forecast);
-        await DatabaseContext.SaveChangesAsync();
-        DatabaseContext.ChangeTracker.Clear();
+        var savedData = await new SimulatedDataBuilder()
+            .WithForecasts(1)
+            .Generate()
+            .Save(DatabaseContext);
+        
+        var forecast = savedData.Forecasts.Single();
 
         var jwt = MockJwtTokensHelper.GenerateJwtToken(new MockJwtTokensHelper.TokenOptions
             { Scopes = [Scopes.Read] });

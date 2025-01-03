@@ -40,16 +40,16 @@ public class TestContainersFactory(TestContainersConfig config, ILogger<TestCont
 
                 await _postgreSqlContainer.StartAsync(cancellationToken);
                 
+                var options = Options.Create(new InfrastructureConfig
+                {
+                    ConnectionString = _postgreSqlContainer.GetConnectionString(),
+                    EnableSensitiveDataLogging = true
+                });
+                
+                await using var context = new DatabaseContext(options);
+                
                 if (config.RunMigrations)
                 {
-                    var options = Options.Create(new InfrastructureConfig
-                    {
-                        ConnectionString = _postgreSqlContainer.GetConnectionString(),
-                        EnableSensitiveDataLogging = true
-                    });
-
-                    await using var context = new DatabaseContext(options);
-
                     var retries = 0;
                     while (!await context.Database.CanConnectAsync(cancellationToken) && retries < 10)
                     {
@@ -59,6 +59,14 @@ public class TestContainersFactory(TestContainersConfig config, ILogger<TestCont
 
                     logger.LogInformation("Running database migrations");
                     await context.Database.MigrateAsync(cancellationToken); 
+                }
+                
+                if (config.SeedDatabase)
+                {
+                    logger.LogInformation("Seeding database with simulated data");
+                    
+                    var simulatedDataBuilder = new SimulatedDataBuilder();
+                    await simulatedDataBuilder.WithAll().Save(context, cancellationToken);
                 }
             }
         } catch (Exception ex)
