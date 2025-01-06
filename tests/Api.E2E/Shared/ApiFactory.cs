@@ -35,7 +35,8 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
         var config = new TestContainersConfig
         {
             Enabled = true,
-            RunMigrations = true
+            RunMigrations = true,
+            SeedDatabase = false
         };
         
         TestContainersFactory = new TestContainersFactory(config, NullLogger<TestContainersFactory>.Instance);
