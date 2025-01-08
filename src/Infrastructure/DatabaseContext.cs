@@ -11,6 +11,8 @@ public class DatabaseContext(IOptions<InfrastructureConfig> config) : DbContext,
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(config.Value.ConnectionString);
+        optionsBuilder
+            .UseNpgsql(config.Value.ConnectionString)
+            .EnableSensitiveDataLogging(config.Value.EnableSensitiveDataLogging);
     }
 }
