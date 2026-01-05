@@ -1,0 +1,9 @@
+# csharpier config
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# other dotnet config (not respected by csharpier, but works in IDE)
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+trim_trailing_whitespace = true

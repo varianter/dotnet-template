@@ -47,6 +47,8 @@ As can be seen, in the solution Api depends upon Infrastructure, which depends u
 1. Once the API is running, open `http://localhost:5062/swagger/` in your web browser to access the Swagger UI.
 1. To authenticate with the API, you will need a JWT token that is printed when you run `setup-jwts.sh`. Paste this token into the Swagger UI to start using the API. If you need to retrieve the token again, you can run `dotnet user-jwts print <id of the token>` from the `src/Api` folder.
 
+**Important**: This solution uses [`CSharpier` for formatting the code](https://csharpier.com/). It is installed as a local tool, and will automatically be installed when running `dotnet build` or `dotnet restore`. In addition we use [`Husky.Net`](https://alirezanet.github.io/Husky.Net/) to run the formatter before each commit. It is recommended (but not required) to use a [CSharpier-plugin for your IDE](https://csharpier.com/docs/Editors) to format the code on save, so your code does not unexpectedly change when committing the file.
+
 **Important**: For local development, if `TestContainers:Enabled` is set to `true` in the `appsettings.Development.json`-file (it is by default), the Api will start a PostgreSQL database in a Docker container using TestContainers. This means that Docker must be running when starting the Api.
 
 ### Testing
