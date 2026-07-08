@@ -24,7 +24,7 @@
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
-  <Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(CI)' != 0">
+  <Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(CI)' != 'true'">
     <Exec
       Command="dotnet tool restore"
       StandardOutputImportance="Low"
